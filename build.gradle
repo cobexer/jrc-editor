@@ -21,8 +21,8 @@ plugins {
 	id 'eclipse'
 	id "com.diffplug.spotless" version "6.17.0"
 	id "ca.coglinc2.javacc" version "3.0.0"
-	id "org.sonarqube" version "3.1.1"
-	id "com.github.ben-manes.versions" version "0.39.0"
+	id "org.sonarqube" version "4.0.0.2929"
+	id "com.github.ben-manes.versions" version "0.46.0"
 }
 
 application {
@@ -30,8 +30,11 @@ application {
 	executableDir = ''
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
 
 tasks.compileJava.options.encoding = 'UTF-8'
 tasks.compileTestJava.options.encoding = 'UTF-8'
@@ -48,13 +51,14 @@ spotless {
 }
 
 dependencies {
-	compile 'org.apache.commons:commons-configuration2:2.5'
-	compile 'commons-beanutils:commons-beanutils:1.9.4'
-	compile 'jakarta-regexp:jakarta-regexp:1.4'
+	implementation 'org.apache.commons:commons-configuration2:2.5'
+	implementation 'commons-beanutils:commons-beanutils:1.9.4'
+	implementation 'jakarta-regexp:jakarta-regexp:1.4'
 }
 
 repositories {
-	jcenter()
+	mavenLocal()
+	mavenCentral()
 }
 
 sourceSets {
@@ -97,12 +101,10 @@ sonarqube {
 	}
 }
 
-dependencyUpdates {
-	revision "release"
-	outputFormatter "text"
+tasks.named("dependencyUpdates").configure {
 	resolutionStrategy {
-		componentSelection { rules ->
-			rules.all { ComponentSelection selection ->
+		componentSelection {
+			all { ComponentSelection selection ->
 				boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
 					selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
 				}

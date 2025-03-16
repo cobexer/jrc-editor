@@ -1,6 +1,6 @@
 [versions]
 commons-configuration = "2.5"
-commons-beanutils = "1.9.4"
+commons-beanutils = "1.10.1"
 jakarta-regexp = "1.4"
 
 [libraries]

@@ -1,3 +1,4 @@
+import com.autonomousapps.tasks.ProjectHealthTask
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 /*
@@ -19,15 +20,31 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
  */
 
 plugins {
-	application
+	alias(libs.plugins.dependency.analysis)
+	alias(libs.plugins.beryx.jlink)
 	alias(libs.plugins.spotless)
 	alias(libs.plugins.javacc)
 	alias(libs.plugins.sonarqube)
 	alias(libs.plugins.versions)
 }
 
+dependencyAnalysis {
+	issues {
+		all {
+			onDuplicateClassWarnings {
+				severity("fail")
+			}
+		}
+	}
+}
+
+tasks.check {
+	dependsOn(tasks.withType(ProjectHealthTask::class.java))
+}
+
 application {
 	mainClass = "org.zaval.tools.i18n.translator.JrcEditor"
+	mainModule = "jrc.editor.main"
 	executableDir = ""
 }
 
@@ -54,12 +71,13 @@ spotless {
 
 dependencies {
 	implementation(libs.commons.configuration)
-	implementation(libs.commons.beanutils)
-	implementation(libs.jakarta.regexp)
+	implementation(libs.slf4j.api)
+
+	runtimeOnly(libs.bundles.slf4j.runtime)
+	runtimeOnly(libs.commons.beanutils)
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
 }
 
@@ -114,5 +132,15 @@ tasks.withType(DependencyUpdatesTask::class.java).configureEach {
 				}
 			}
 		}
+	}
+}
+
+jlink {
+	options = listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages")
+	launcher {
+		name = "jrc-editor"
+	}
+	jpackage {
+		icon = "resources/jrc-editor.icns"
 	}
 }

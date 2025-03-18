@@ -18,6 +18,9 @@
 
 package org.zaval.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Frame;
@@ -40,6 +43,7 @@ import javax.swing.event.HyperlinkEvent;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AboutDialog.class);
 
 	private ActionListener actionListener = new ActionListener() {
 		@Override
@@ -81,8 +85,7 @@ public class AboutDialog extends JDialog {
 				Desktop.getDesktop().browse(e.getURL().toURI());
 			}
 			catch (IOException | URISyntaxException e1) {
-				// nope not gonna happen...
-				e1.printStackTrace();
+				LOGGER.error("Failed to open hyperlink {}", e.getURL(), e1);
 			}
 		}
 	}

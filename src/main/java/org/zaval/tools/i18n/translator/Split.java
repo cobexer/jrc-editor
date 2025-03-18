@@ -28,11 +28,14 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zaval.tools.i18n.translator.generated.UtfParser;
 import org.zaval.util.LambdaUtils;
 import org.zaval.xml.XmlReader;
 
 public class Split { // NO_UCD (unused code)
+	private static final Logger LOGGER = LoggerFactory.getLogger(Split.class);
 	private BundleManager bundle = new BundleManager();
 
 	private Split(String srcName) {
@@ -40,6 +43,7 @@ public class Split { // NO_UCD (unused code)
 			readResources(srcName, false);
 		}
 		catch (Exception e) {
+			LOGGER.error("Failed to split {}", srcName, e);
 		}
 	}
 

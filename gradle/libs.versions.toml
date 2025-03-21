@@ -1,17 +1,22 @@
 [versions]
 commons-configuration = "2.5"
 commons-beanutils = "1.9.4"
-jakarta-regexp = "1.4"
+slf4j = "2.0.17"
 
 [libraries]
 commons-configuration = { module = "org.apache.commons:commons-configuration2", version.ref = "commons-configuration" }
 commons-beanutils = { module = "commons-beanutils:commons-beanutils", version.ref = "commons-beanutils" }
-jakarta-regexp = { module = "jakarta-regexp:jakarta-regexp", version.ref = "jakarta-regexp" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [bundles]
+slf4j-runtime = ["jcl-over-slf4j", "slf4j-simple"]
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version = "7.0.2" }
 javacc = { id = "ca.coglinc2.javacc", version = "3.0.0" }
 sonarqube = { id = "org.sonarqube", version = "6.0.1.5171" }
 versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
+beryx-jlink = { id = "org.beryx.jlink", version = "3.1.1" }
+dependency-analysis = { id ="com.autonomousapps.dependency-analysis", version = "2.13.0" }

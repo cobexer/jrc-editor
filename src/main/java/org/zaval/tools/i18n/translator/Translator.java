@@ -62,6 +62,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
@@ -94,8 +97,6 @@ import javax.swing.text.JTextComponent;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 import org.zaval.tools.i18n.translator.generated.UtfParser;
 import org.zaval.ui.AboutDialog;
 import org.zaval.ui.LangDialog;
@@ -1085,10 +1086,16 @@ class Translator extends JFrame implements TranslationTreeListener {
 		String val = curItemForReplace.getTranslation(lang);
 		if (searchRegex) {
 			try {
-				RE re = new RE(searchCriteria, searchCase ? RE.MATCH_NORMAL : RE.MATCH_CASEINDEPENDENT);
-				val = re.subst(val, replaceTo, replaceAll ? RE.REPLACE_ALL : RE.REPLACE_FIRSTONLY);
+				Pattern pattern = Pattern.compile(searchCriteria, searchCase ? Pattern.CASE_INSENSITIVE : 0);
+				Matcher matcher = pattern.matcher(val);
+				if (replaceAll) {
+					val = matcher.replaceAll(replaceTo);
+				}
+				else {
+					val = matcher.replaceFirst(replaceTo);
+				}
 			}
-			catch (RESyntaxException e) {
+			catch (PatternSyntaxException e) {
 				infoException(e);
 				replaceTo = null;
 			}
@@ -2055,10 +2062,10 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 	private boolean match_regex(String mask, String val, boolean matchCase) {
 		try {
-			RE re = new RE(mask, matchCase ? RE.MATCH_NORMAL : RE.MATCH_CASEINDEPENDENT);
-			return re.match(val);
+			Matcher m = Pattern.compile(mask, matchCase ? 0 : Pattern.CASE_INSENSITIVE).matcher(val);
+			return m.matches();
 		}
-		catch (RESyntaxException e) {
+		catch (PatternSyntaxException e) {
 			infoException(e);
 		}
 		return false;

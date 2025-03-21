@@ -2,19 +2,61 @@ name: Build
 
 on:
   push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        java:
+          - 21
+      fail-fast: false
+    name: ${{ matrix.os }}
     steps:
-    - name: Checkout sources
-      uses: actions/checkout@v4
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: 17
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    - name: Build with Gradle
-      run: ./gradlew build
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+      - name: Echo JAVA_HOME
+        run: echo $JAVA_HOME
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - run: ./gradlew --info --stacktrace build
+      - run: ./gradlew --info --stacktrace jlink
+      - run: ./gradlew --info --stacktrace jpackage
+
+      - name: Upload DMG as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrc-editor${{ matrix.java }}-${{ matrix.os }}-dmg
+          path: build/jpackage/*.dmg
+      - name: Upload EXE as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrc-editor${{ matrix.java }}-${{ matrix.os }}-exe
+          path: build/jpackage/*.exe
+      - name: Upload MSI as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrc-editor${{ matrix.java }}-${{ matrix.os }}-msi
+          path: build/jpackage/*.msi
+      - name: Upload DEB as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrc-editor${{ matrix.java }}-${{ matrix.os }}-deb
+          path: build/jpackage/*.deb
+      - name: Upload RPM as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrc-editor${{ matrix.java }}-${{ matrix.os }}-rpm
+          path: build/jpackage/*.rpm

@@ -30,7 +30,7 @@ jobs:
       - name: Echo JAVA_HOME
         run: echo $JAVA_HOME
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew --info --stacktrace build
       - run: ./gradlew --info --stacktrace jlink
       - run: ./gradlew --info --stacktrace jpackage

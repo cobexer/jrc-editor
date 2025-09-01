@@ -18,12 +18,11 @@
 
 package org.zaval.ui;
 
-import java.awt.Component;
-
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
+import java.awt.Component;
 
 class TranslationTreeCellRenderer implements TreeCellRenderer {
 	private final ImageIcon warningIcon;

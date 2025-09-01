@@ -18,19 +18,18 @@
 
 package org.zaval.tools.i18n.translator;
 
+import org.zaval.util.SafeResourceBundle;
+
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.Locale;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import org.zaval.util.SafeResourceBundle;
-
 public class JrcEditor { // NO_UCD (unused code)
-	public static void main(String arg[]) {
+	public static void main(String[] arg) {
 		try {
 			if ("linux".equalsIgnoreCase(System.getProperty("os.name"))) {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");

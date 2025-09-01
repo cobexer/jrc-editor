@@ -264,9 +264,7 @@ class BundleManager {
 			else {
 				res.append("\\u");
 				String hex = Integer.toHexString(ch);
-				for (int j = 0; j < (4 - hex.length()); j++) {
-					res.append("0");
-				}
+				res.append("0".repeat((4 - hex.length())));
 				res.append(hex);
 			}
 		}
@@ -363,7 +361,7 @@ class BundleManager {
 		if (fn.endsWith(TranslatorConstants.RES_EXTENSION)) {
 			try (PrintStream f = new PrintStream(new FileOutputStream(fn))) {
 				for (String line : lines) {
-					f.print(toEscape(line) + System.getProperty("line.separator"));
+					f.print(toEscape(line) + System.lineSeparator());
 				}
 			}
 		}

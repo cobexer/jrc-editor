@@ -18,20 +18,18 @@
 
 package org.zaval.ui;
 
-import static org.zaval.ui.UiUtils.constrain;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.LineBorder;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
-@SuppressWarnings("serial")
+import static org.zaval.ui.UiUtils.constrain;
+
 public class SearchDialog extends EditDialog {
 	private final JRadioButton inKeys = new JRadioButton("", false);
 	private final JRadioButton inVals = new JRadioButton("", true);

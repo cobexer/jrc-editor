@@ -18,12 +18,11 @@
 
 package org.zaval.ui;
 
-import java.awt.Component;
-import java.util.function.Function;
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import java.awt.Component;
+import java.util.function.Function;
 
 class LangDialogCellRenderer<T> implements ListCellRenderer<T> {
 	private final ListCellRenderer<? super T> cellRenderer;

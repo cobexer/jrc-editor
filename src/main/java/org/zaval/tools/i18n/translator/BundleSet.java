@@ -78,7 +78,7 @@ class BundleSet {
 	}
 
 	Stream<BundleItem> getItems() {
-		return items.entrySet().stream().map(Map.Entry::getValue);
+		return items.values().stream();
 	}
 
 	int getItemIndex(String key) {
@@ -126,7 +126,7 @@ class BundleSet {
 			sl = suffix.substring(0, undInd);
 			sc = suffix.substring(undInd + 1);
 		}
-		return new Locale(sl, sc);
+		return Locale.of(sl, sc);
 	}
 
 	void addLanguage(String lng) {
@@ -134,7 +134,7 @@ class BundleSet {
 		if (loc != null) {
 			String desc = loc.getDisplayLanguage();
 			String sCountry = loc.getDisplayCountry();
-			if ((sCountry != null) && (!sCountry.isEmpty())) {
+			if (!sCountry.isEmpty()) {
 				desc += " (" + sCountry + ")";
 			}
 			addLanguage(lng, desc);

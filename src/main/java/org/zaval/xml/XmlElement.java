@@ -245,7 +245,7 @@ public class XmlElement {
 				&& (ch != '.')
 				&& (ch != ':')
 				&& (ch != '-')
-				&& (ch <= '\u007E')) {
+				&& (ch <= '~')) {
 				this.unreadChar(ch);
 				return;
 			}
@@ -528,7 +528,7 @@ public class XmlElement {
 				}
 			}
 		}
-		if (buf.length() == 0) {
+		if (buf.isEmpty()) {
 			while (ch != '/') {
 				if (ch == '!') {
 					ch = this.readChar();

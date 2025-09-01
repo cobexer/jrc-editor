@@ -18,15 +18,6 @@
 
 package org.zaval.ui;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
@@ -38,13 +29,19 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 public class TranslationTree implements TreeModelListener {
 	private final Map<String, TranslationTreeNode> nodes = new HashMap<>();
 	private final TranslationTreeNode rootNode = TranslationTreeNode.createRootNode();
 	private final JTree tree;
 	private final JScrollPane component;
-	private final DefaultTreeModel treeModel;
 	private final ImageIcon warningIcon;
 
 	private TranslationTreeNode selectedNode; // highlighted node
@@ -55,7 +52,7 @@ public class TranslationTree implements TreeModelListener {
 		this.translationTreeListener = translationTreeListener;
 		nodes.put("", rootNode);
 		tree = new JTree(rootNode);
-		treeModel = (DefaultTreeModel) tree.getModel();
+		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		rootNode.setModel(treeModel);
 		component = new JScrollPane(tree);
 		tree.setShowsRootHandles(true);
@@ -107,7 +104,7 @@ public class TranslationTree implements TreeModelListener {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-						translationTreeListener.onDeleteTreeNode(Optional.ofNullable(selectedNode));
+						translationTreeListener.onDeleteTreeNode(selectedNode);
 					}
 				}
 			});
@@ -146,7 +143,7 @@ public class TranslationTree implements TreeModelListener {
 			selectedNode = (TranslationTreeNode) newSelectedPath.getLastPathComponent();
 		}
 		if (null != translationTreeListener) {
-			translationTreeListener.onTreeSelectionChanged(Optional.ofNullable(selectedNode));
+			translationTreeListener.onTreeSelectionChanged(selectedNode);
 		}
 	}
 
@@ -215,9 +212,7 @@ public class TranslationTree implements TreeModelListener {
 		if (1 == nodes.size()) {
 			// auto expand the root node because JTree is such a smart useful thing that doesn't do this on it's own...
 			// I mean JTrees with hidden collapsed root are so very useful... Am I right??
-			SwingUtilities.invokeLater(() -> {
-				expandNode(new TreePath(rootNode), true);
-			});
+			SwingUtilities.invokeLater(() -> expandNode(new TreePath(rootNode), true));
 		}
 		for (Object n : e.getChildren()) {
 			TranslationTreeNode node = (TranslationTreeNode) n;

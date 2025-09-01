@@ -58,9 +58,13 @@ class SrcGenerator {
 				+ "\", error); }");
 		}
 		out.println("\t}\n");
-		out.println("\tprivate void reportNoRc(String what, Exception details)\n\t{\n"
-			+ "\t\tSystem.err.println(what + \": unknown resource\");\n"
-			+ "\t\tdetails.printStackTrace();\n\t}\n");
+		out.println("""
+			\tprivate void reportNoRc(String what, Exception details)
+			\t{
+			\t\tSystem.err.println(what + ": unknown resource");
+			\t\tdetails.printStackTrace();
+			\t}
+			""".stripIndent());
 		out.println("}");
 		out.close();
 	}

@@ -18,6 +18,12 @@
 
 package org.zaval.tools.i18n.translator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zaval.tools.i18n.translator.generated.UtfParser;
+import org.zaval.util.LambdaUtils;
+import org.zaval.xml.XmlReader;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -27,12 +33,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zaval.tools.i18n.translator.generated.UtfParser;
-import org.zaval.util.LambdaUtils;
-import org.zaval.xml.XmlReader;
 
 public class Split { // NO_UCD (unused code)
 	private static final Logger LOGGER = LoggerFactory.getLogger(Split.class);
@@ -277,14 +277,16 @@ public class Split { // NO_UCD (unused code)
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Usage:\n"
-				+ "\tjrc-split join srcFile ... addFile\n"
-				+ "\tjrc-split split srcFile dstFile [lang ...]\n"
-				+ "Where:\n"
-				+ "\taddFile\t- XML, Java, other bundle set or UCS16 text file\n"
-				+ "\tsrcFile\t- a root file of properties bundle set\n"
-				+ "\tdstFile\t- XML, Java, other bundle set or UCS16 text file\n"
-				+ "\tlang\t- locale abbreviation (suffix of slave properties files)\n");
+			System.out.println("""
+				Usage:
+				\tjrc-split join srcFile ... addFile
+				\tjrc-split split srcFile dstFile [lang ...]
+				Where:
+				\taddFile\t- XML, Java, other bundle set or UCS16 text file
+				\tsrcFile\t- a root file of properties bundle set
+				\tdstFile\t- XML, Java, other bundle set or UCS16 text file
+				\tlang\t- locale abbreviation (suffix of slave properties files)
+				""".stripIndent());
 		}
 	}
 }

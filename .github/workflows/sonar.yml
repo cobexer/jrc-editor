@@ -33,6 +33,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >-
-          ./gradlew sonar
+          ./gradlew assemble sonar
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}

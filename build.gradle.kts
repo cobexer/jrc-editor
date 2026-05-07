@@ -82,25 +82,11 @@ sonarqube {
 	}
 }
 
-tasks.withType(DependencyUpdatesTask::class.java).configureEach {
-	resolutionStrategy {
-		componentSelection {
-			all {
-				var rejected = listOf("alpha", "beta", "rc", "cr", "m").any { qualifier ->
-					val regex = Regex("(?i).*[.-]${qualifier}[.\\d-]*")
-					regex.containsMatchIn(candidate.version)
-				}
-				if (rejected) {
-					reject("Release candidate")
-				}
-				else {
-					rejected = candidate.version.contains("-")
-					if (rejected) {
-						reject("SNAPSHOT version")
-					}
-				}
-			}
-		}
+tasks.withType<DependencyUpdatesTask> {
+	rejectVersionIf {
+		listOf("alpha", "beta", "rc", "cr", "m").any { qualifier ->
+			Regex("(?i).*[.-]${qualifier}[.\\d-]*").containsMatchIn(candidate.version)
+		} || candidate.version.contains("-")
 	}
 }
 

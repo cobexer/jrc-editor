@@ -78,7 +78,6 @@ tasks.assemble.configure {
 sonarqube {
 	properties {
 		property("sonar.exclusions", "**/org/zaval/tools/i18n/translator/generated/**")
-		property("sonar.branch.name", System.getenv("TRAVIS_BRANCH"))
 	}
 }
 

@@ -17,3 +17,5 @@
  */
 
 rootProject.name = "jrc-editor"
+
+includeBuild("build-logic")

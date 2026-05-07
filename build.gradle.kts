@@ -20,22 +20,9 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
  */
 
 plugins {
-	alias(libs.plugins.dependency.analysis)
-	alias(libs.plugins.beryx.jlink)
-	alias(libs.plugins.spotless)
-	alias(libs.plugins.javacc)
-	alias(libs.plugins.sonarqube)
-	alias(libs.plugins.versions)
-}
-
-dependencyAnalysis {
-	issues {
-		all {
-			onDuplicateClassWarnings {
-				severity("fail")
-			}
-		}
-	}
+	application
+	id("buildlogic.java")
+	id("buildlogic.root")
 }
 
 tasks.check {
@@ -46,16 +33,6 @@ application {
 	mainClass = "org.zaval.tools.i18n.translator.JrcEditor"
 	mainModule = "jrc.editor.main"
 	executableDir = ""
-}
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-tasks.withType<JavaCompile> {
-	options.encoding = "UTF-8"
 }
 
 spotless {
@@ -77,10 +54,6 @@ dependencies {
 	runtimeOnly(libs.commons.beanutils)
 }
 
-repositories {
-	mavenCentral()
-}
-
 sourceSets {
 	main {
 		java {
@@ -96,10 +69,6 @@ tasks.withType(GenerateEclipseClasspath::class).configureEach {
 tasks.compileJavacc {
 	inputDirectory = file("src/main/javacc")
 	outputDirectory = project.layout.buildDirectory.dir("generated/javacc").get().asFile
-}
-
-tasks.withType(Tar::class).configureEach {
-	compression = Compression.GZIP
 }
 
 tasks.assemble.configure {
@@ -125,7 +94,7 @@ tasks.withType(DependencyUpdatesTask::class.java).configureEach {
 					reject("Release candidate")
 				}
 				else {
-					rejected = candidate.version.contains("-");
+					rejected = candidate.version.contains("-")
 					if (rejected) {
 						reject("SNAPSHOT version")
 					}

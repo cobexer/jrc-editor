@@ -29,10 +29,7 @@ public class SafeResourceBundle {
 	public SafeResourceBundle(String resName, Locale loc) {
 		try {
 			if (loc == null) {
-				Locale.setDefault(Locale.of("en", "US"));
-				rb = ResourceBundle.getBundle(resName);
-				Locale saved = Locale.getDefault();
-				Locale.setDefault(saved);
+				rb = ResourceBundle.getBundle(resName, Locale.of("en", "US"));
 			}
 			else {
 				rb = ResourceBundle.getBundle(resName, loc);

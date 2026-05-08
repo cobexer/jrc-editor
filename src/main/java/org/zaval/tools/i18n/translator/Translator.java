@@ -1709,7 +1709,9 @@ class Translator extends JFrame implements TranslationTreeListener {
 		if (null != name && !name.isEmpty()) {
 			pickList.remove(name);
 			pickList.addFirst(name);
-			pickList = pickList.subList(0, Math.min(7, pickList.size()));
+			if (pickList.size() > 7) {
+				pickList.subList(7, pickList.size()).clear();
+			}
 			saveIni();
 		}
 	}

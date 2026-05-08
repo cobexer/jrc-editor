@@ -87,9 +87,9 @@ sonarqube {
 
 tasks.withType<DependencyUpdatesTask> {
 	rejectVersionIf {
-		listOf("alpha", "beta", "rc", "cr", "m").any { qualifier ->
+		listOf("alpha", "beta", "rc", "cr", "m", "snapshot").any { qualifier ->
 			Regex("(?i).*[.-]${qualifier}[.\\d-]*").containsMatchIn(candidate.version)
-		} || candidate.version.contains("-")
+		}
 	}
 }
 

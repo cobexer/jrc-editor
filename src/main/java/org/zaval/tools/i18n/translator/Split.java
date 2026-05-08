@@ -277,7 +277,7 @@ public class Split { // NO_UCD (unused code)
 				\tsrcFile\t- a root file of properties bundle set
 				\tdstFile\t- XML, Java, other bundle set or UCS16 text file
 				\tlang\t- locale abbreviation (suffix of slave properties files)
-				""".stripIndent());
+				""");
 		}
 	}
 }

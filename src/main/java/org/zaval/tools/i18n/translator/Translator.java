@@ -598,7 +598,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 	private void onDelete() {
 		Component ccur = getFocusOwner();
-		if (ccur instanceof JTextComponent cur && cur.getSelectionStart() > 0) {
+		if (ccur instanceof JTextComponent cur && cur.getSelectionStart() != cur.getSelectionEnd()) {
 			cur.replaceSelection("");
 		}
 	}

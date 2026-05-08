@@ -6,6 +6,7 @@ on:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+  merge_group:
 
 permissions: {}
 
@@ -14,6 +15,7 @@ jobs:
     # Skip fork PRs — secrets are unavailable for security reasons
     if: >-
       github.event_name == 'push' ||
+      github.event_name == 'merge_group' ||
       github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read

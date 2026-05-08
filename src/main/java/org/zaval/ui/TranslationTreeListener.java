@@ -18,18 +18,16 @@
 
 package org.zaval.ui;
 
-import java.util.Optional;
-
 public interface TranslationTreeListener {
 	/**
 	 * Called in response to changing the selected node.
 	 * @param newSelectedNode the node that receives the selection (if any).
 	 */
-	void onTreeSelectionChanged(Optional<TranslationTreeNode> newSelectedNode);
+	void onTreeSelectionChanged(TranslationTreeNode newSelectedNode);
 
 	/**
 	 * Called in response to pressing the delete key.
 	 * @param selectedNode the currently selected node (if any).
 	 */
-	void onDeleteTreeNode(Optional<TranslationTreeNode> selectedNode);
+	void onDeleteTreeNode(TranslationTreeNode selectedNode);
 }

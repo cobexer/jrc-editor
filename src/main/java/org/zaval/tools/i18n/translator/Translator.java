@@ -18,57 +18,20 @@
 
 package org.zaval.tools.i18n.translator;
 
-import static org.zaval.ui.UiUtils.constrain;
-
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import org.apache.commons.configuration2.INIConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.zaval.tools.i18n.translator.generated.UtfParser;
+import org.zaval.ui.AboutDialog;
+import org.zaval.ui.LangDialog;
+import org.zaval.ui.ReplaceDialog;
+import org.zaval.ui.SearchDialog;
+import org.zaval.ui.TranslationTree;
+import org.zaval.ui.TranslationTreeListener;
+import org.zaval.ui.TranslationTreeNode;
+import org.zaval.util.LambdaUtils;
+import org.zaval.util.SafeResourceBundle;
+import org.zaval.xml.XmlReader;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -93,23 +56,58 @@ import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.JTextComponent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import org.apache.commons.configuration2.INIConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Configurations;
-import org.zaval.tools.i18n.translator.generated.UtfParser;
-import org.zaval.ui.AboutDialog;
-import org.zaval.ui.LangDialog;
-import org.zaval.ui.ReplaceDialog;
-import org.zaval.ui.SearchDialog;
-import org.zaval.ui.TranslationTree;
-import org.zaval.ui.TranslationTreeListener;
-import org.zaval.ui.TranslationTreeNode;
-import org.zaval.util.LambdaUtils;
-import org.zaval.util.SafeResourceBundle;
-import org.zaval.xml.XmlReader;
+import static org.zaval.ui.UiUtils.constrain;
 
-@SuppressWarnings("serial")
 class Translator extends JFrame implements TranslationTreeListener {
 	private static final String OPTION_PICKLIST = "picklist";
 	private static final String OPTION_ALLOW_DOT = "allowDot";
@@ -139,7 +137,6 @@ class Translator extends JFrame implements TranslationTreeListener {
 	private JMenuItem saveAsBundleMenu;
 	private JMenuItem genMenu;
 	private JMenuItem closeMenu;
-	private JMenuItem exitMenu;
 	private JMenu langMenu;
 	private JMenu fileMenu;
 	private JCheckBoxMenuItem hideTransMenu;
@@ -290,7 +287,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 		keyName = new JTextField();
 		constrain(keyPanel, keyName, 1, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.BOTH, 1.0, 1.0, 5, 5, 5, 5);
-		keyName.addActionListener((e) -> onInsertKey());
+		keyName.addActionListener(e -> onInsertKey());
 
 		JButton keyInsertButton = createButton(this::onInsertKey, RC("tools.translator.label.insert"));
 		constrain(keyPanel, keyInsertButton, 2, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.NONE, 0.0, 0.0, 5, 5, 5, 5);
@@ -320,7 +317,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		closeMenu = createMenuItem(this::onCloseMenu, RC("tools.translator.menu.close"));
 		closeMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
 		closeMenu.setEnabled(false);
-		exitMenu = createMenuItem(this::onClose, RC("menu.exit"));
+		JMenuItem exitMenu = createMenuItem(this::onClose, RC("menu.exit"));
 		exitMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 
 		JMenu editMenu = new JMenu(RC("menu.edit"));
@@ -467,7 +464,9 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 	public ImageIcon getImageIcon(String name) {
 		try {
-			return new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("org/zaval/ui/images/" + name))); //$NON-NLS-1$
+			InputStream is = getClass().getClassLoader().getResourceAsStream("org/zaval/ui/images/" + name); //$NON-NLS-1$
+			Objects.requireNonNull(is, "Resource not found: " + name);
+			return new ImageIcon(ImageIO.read(is));
 		}
 		catch (IOException ioe) {
 			throw new RuntimeException(ioe);
@@ -563,8 +562,11 @@ class Translator extends JFrame implements TranslationTreeListener {
 	}
 
 	@Override
-	public void onTreeSelectionChanged(Optional<TranslationTreeNode> newSelectedNode) {
-		String newKey = newSelectedNode.map(n -> n.getText()).orElse(null);
+	public void onTreeSelectionChanged(TranslationTreeNode newSelectedNode) {
+		String newKey = null;
+		if (newSelectedNode != null) {
+			newKey = newSelectedNode.getText();
+		}
 		if (!Objects.equals(wasSelectedKey, newKey)) {
 			setTranslations(newKey);
 			invokeAutoFit();
@@ -572,7 +574,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 	}
 
 	@Override
-	public void onDeleteTreeNode(Optional<TranslationTreeNode> selectedNode) {
+	public void onDeleteTreeNode(TranslationTreeNode selectedNode) {
 		onDeleteKey();
 	}
 
@@ -596,11 +598,8 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 	private void onDelete() {
 		Component ccur = getFocusOwner();
-		if (ccur instanceof JTextComponent) {
-			JTextComponent cur = (JTextComponent) ccur;
-			if (cur.getSelectionStart() > 0) {
-				cur.replaceSelection("");
-			}
+		if (ccur instanceof JTextComponent cur && cur.getSelectionStart() != cur.getSelectionEnd()) {
+			cur.replaceSelection("");
 		}
 	}
 
@@ -706,7 +705,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		while (key.endsWith(".")) {
 			key = key.substring(0, key.length() - 1);
 		}
-		if (key.length() <= 0) {
+		if (key.isEmpty()) {
 			return null;
 		}
 		String illegalChar = "";
@@ -766,13 +765,13 @@ class Translator extends JFrame implements TranslationTreeListener {
 			doDeleteAll = 0 == selection;
 			doDeleteThis = 1 == selection;
 		}
-		else if ((bi != null) && !hasChilds) {
+		else if (bi != null) {
 			String[] options = { RC("dialog.button.delete.this"), RC("dialog.button.cancel") };
 			int selection = JOptionPane.showOptionDialog(this, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
 				options, options[0]);
 			doDeleteThis = 0 == selection;
 		}
-		else if (bi == null) {
+		else {
 			String[] options = { RC("dialog.button.delete.all"), RC("dialog.button.cancel") };
 			int selection = JOptionPane.showOptionDialog(this, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
 				options, options[0]);
@@ -1008,7 +1007,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 		ed.doModal();
 		String text = ed.getText();
-		if ((text.length() <= 0) || !ed.isApply()) {
+		if ((text.isEmpty()) || !ed.isApply()) {
 			return;
 		}
 
@@ -1040,7 +1039,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 		ed.doModal();
 		String text = ed.getText();
-		if ((text.length() <= 0) || !ed.isApply()) {
+		if ((text.isEmpty()) || !ed.isApply()) {
 			return;
 		}
 
@@ -1053,7 +1052,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		replaceAll = ed.isReplaceAll();
 		replaceTo = ed.getReplaceTo();
 
-		if (!searchRegex && !searchMask && !searchCase) {
+		if (!searchRegex && !searchCase) {
 			searchCriteria = searchCriteria.toLowerCase();
 		}
 
@@ -1393,7 +1392,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		ls.box.setState(true);
 		ls.label = new JLabel(langLab + ":");
 		ls.tf = new JTextArea();
-		ls.tf.setLocale(new Locale(lang, ""));
+		ls.tf.setLocale(Locale.of(lang, ""));
 		ls.tf.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent ke) {
@@ -1643,7 +1642,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		}
 
 		int j;
-		String s1 = stretchPath(pickList.get(0));
+		String s1 = stretchPath(pickList.getFirst());
 		for (j = 0; j < fileMenu.getItemCount(); ++j) {
 			JMenuItem item = fileMenu.getItem(j);
 			if (null != item) {
@@ -1666,16 +1665,18 @@ class Translator extends JFrame implements TranslationTreeListener {
 		if (name.length() < MAX_PICK_LENGTH) {
 			return name;
 		}
-		return name.substring(0, 4) + "..." + name.substring(name.length() - Math.min(name.length() - 7, MAX_PICK_LENGTH - 7));
+		return name.substring(0, 4) + "..." + name.substring(name.length() - (MAX_PICK_LENGTH - 7));
 	}
 
 	private void loadPickList() {
 		removePickList();
 		try {
-			File path = getLegacyConfigFile();
+			Path path = getLegacyConfigFile();
 			INIConfiguration ini = new INIConfiguration();
-			if (path.exists() && path.isFile()) {
-				ini.read(new FileReader(path));
+			if (Files.isRegularFile(path)) {
+				try (BufferedReader reader = Files.newBufferedReader(path)) {
+					ini.read(reader);
+				}
 			}
 
 			pickList.addAll(ini.getList(String.class, OPTION_PICKLIST, Collections.emptyList()));
@@ -1702,20 +1703,22 @@ class Translator extends JFrame implements TranslationTreeListener {
 	private void addToPickList(String name) {
 		if (null != name && !name.isEmpty()) {
 			pickList.remove(name);
-			pickList.add(0, name);
-			pickList = pickList.subList(0, Math.min(7, pickList.size()));
+			pickList.addFirst(name);
+			if (pickList.size() > 7) {
+				pickList.subList(7, pickList.size()).clear();
+			}
 			saveIni();
 		}
 	}
 
 	private void saveIni() {
 		try {
-			File path = getLegacyConfigFile();
-			if (!path.exists()) {
-				path.createNewFile();
+			Path path = getLegacyConfigFile();
+			if (!Files.exists(path)) {
+				Files.createFile(path);
 			}
 			Configurations configs = new Configurations();
-			FileBasedConfigurationBuilder<INIConfiguration> builder = configs.iniBuilder(path);
+			FileBasedConfigurationBuilder<INIConfiguration> builder = configs.iniBuilder(path.toFile());
 			INIConfiguration ini = builder.getConfiguration();
 			ini.setProperty(OPTION_PICKLIST, pickList);
 			ini.setProperty(OPTION_KEEP_LAST_DIR, keepLastDir);
@@ -1730,8 +1733,8 @@ class Translator extends JFrame implements TranslationTreeListener {
 		}
 	}
 
-	private File getLegacyConfigFile() {
-		return new File(System.getProperty("user.home") + File.separator + TranslatorConstants.LEGACY_CONFIG_FILENAME);
+	private Path getLegacyConfigFile() {
+		return Path.of(System.getProperty("user.home"), TranslatorConstants.LEGACY_CONFIG_FILENAME);
 	}
 
 	private List<LangItem> getLangSet() {
@@ -1832,24 +1835,8 @@ class Translator extends JFrame implements TranslationTreeListener {
 		}
 	}
 
-	/**
-	 * Reading unicode (UCS16) file stream into memory
-	 */
 	private String getBody(String file) throws IOException {
-		StringBuilder buf = new StringBuilder();
-		try (DataInputStream in = new DataInputStream(new FileInputStream(file))) {
-			buf.ensureCapacity(in.available());
-
-			try {
-				in.readChar(); // skip UCS16 marker FEFF
-				for (;;) {
-					buf.append(in.readChar());
-				}
-			}
-			catch (EOFException eof) {
-			}
-		}
-		return buf.toString();
+		return new String(Files.readAllBytes(Path.of(file)), StandardCharsets.UTF_16);
 	}
 
 	private void fillTable(Map<String, String> tbl) {

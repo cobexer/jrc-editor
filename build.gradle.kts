@@ -20,22 +20,9 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
  */
 
 plugins {
-	alias(libs.plugins.dependency.analysis)
-	alias(libs.plugins.beryx.jlink)
-	alias(libs.plugins.spotless)
-	alias(libs.plugins.javacc)
-	alias(libs.plugins.sonarqube)
-	alias(libs.plugins.versions)
-}
-
-dependencyAnalysis {
-	issues {
-		all {
-			onDuplicateClassWarnings {
-				severity("fail")
-			}
-		}
-	}
+	application
+	id("buildlogic.java")
+	id("buildlogic.root")
 }
 
 tasks.check {
@@ -46,16 +33,6 @@ application {
 	mainClass = "org.zaval.tools.i18n.translator.JrcEditor"
 	mainModule = "jrc.editor.main"
 	executableDir = ""
-}
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-tasks.withType<JavaCompile> {
-	options.encoding = "UTF-8"
 }
 
 spotless {
@@ -69,16 +46,16 @@ spotless {
 	}
 }
 
+configurations.all {
+	exclude(group = "commons-logging", module = "commons-logging")
+}
+
 dependencies {
 	implementation(libs.commons.configuration)
 	implementation(libs.slf4j.api)
 
 	runtimeOnly(libs.bundles.slf4j.runtime)
 	runtimeOnly(libs.commons.beanutils)
-}
-
-repositories {
-	mavenCentral()
 }
 
 sourceSets {
@@ -98,10 +75,6 @@ tasks.compileJavacc {
 	outputDirectory = project.layout.buildDirectory.dir("generated/javacc").get().asFile
 }
 
-tasks.withType(Tar::class).configureEach {
-	compression = Compression.GZIP
-}
-
 tasks.assemble.configure {
 	dependsOn(":spotlessCheck")
 }
@@ -109,28 +82,13 @@ tasks.assemble.configure {
 sonarqube {
 	properties {
 		property("sonar.exclusions", "**/org/zaval/tools/i18n/translator/generated/**")
-		property("sonar.branch.name", System.getenv("TRAVIS_BRANCH"))
 	}
 }
 
-tasks.withType(DependencyUpdatesTask::class.java).configureEach {
-	resolutionStrategy {
-		componentSelection {
-			all {
-				var rejected = listOf("alpha", "beta", "rc", "cr", "m").any { qualifier ->
-					val regex = Regex("(?i).*[.-]${qualifier}[.\\d-]*")
-					regex.containsMatchIn(candidate.version)
-				}
-				if (rejected) {
-					reject("Release candidate")
-				}
-				else {
-					rejected = candidate.version.contains("-");
-					if (rejected) {
-						reject("SNAPSHOT version")
-					}
-				}
-			}
+tasks.withType<DependencyUpdatesTask> {
+	rejectVersionIf {
+		listOf("alpha", "beta", "rc", "cr", "m", "snapshot").any { qualifier ->
+			Regex("(?i).*[.-]${qualifier}[.\\d-]*").containsMatchIn(candidate.version)
 		}
 	}
 }

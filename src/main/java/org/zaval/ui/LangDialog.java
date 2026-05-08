@@ -18,8 +18,15 @@
 
 package org.zaval.ui;
 
-import static org.zaval.ui.UiUtils.constrain;
-
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,30 +37,14 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
+import static org.zaval.ui.UiUtils.constrain;
 
-@SuppressWarnings("serial")
 public class LangDialog<ListItem> extends JDialog {
 	private final JLabel label = new JLabel("");
 	private final JList<ListItem> edit = new JList<>();
 	private final JButton ok = new JButton("");
 	private final JButton cancel = new JButton("");
 	private boolean isApply;
-
-	private ActionListener actionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent actionEvent) {
-			onCancel(null);
-		}
-	};
 
 	public LangDialog(JFrame owner, String title, boolean modal, Function<ListItem, String> itemMapper) {
 		super(owner, title, modal);
@@ -74,6 +65,7 @@ public class LangDialog<ListItem> extends JDialog {
 		constrain(this, p, 0, 2, 2, 1, GridBagConstraints.EAST, GridBagConstraints.NONE, 1.0, 0.0, 5, 5, 5, 5);
 
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+		ActionListener actionListener = actionEvent -> onCancel(null);
 		getRootPane().registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 		pack();

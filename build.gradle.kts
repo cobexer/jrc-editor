@@ -46,6 +46,10 @@ spotless {
 	}
 }
 
+configurations.all {
+	exclude(group = "commons-logging", module = "commons-logging")
+}
+
 dependencies {
 	implementation(libs.commons.configuration)
 	implementation(libs.slf4j.api)

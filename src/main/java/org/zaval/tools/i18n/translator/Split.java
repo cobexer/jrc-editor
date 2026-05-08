@@ -20,17 +20,18 @@ package org.zaval.tools.i18n.translator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zaval.tools.i18n.translator.generated.ParseException;
 import org.zaval.tools.i18n.translator.generated.UtfParser;
 import org.zaval.util.LambdaUtils;
 import org.zaval.xml.XmlReader;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -161,23 +162,8 @@ public class Split { // NO_UCD (unused code)
 		return false;
 	}
 
-	/**
-	 * Reading unicode (UCS16) file stream into memory
-	 */
 	private String getBody(String file) throws IOException {
-		try (DataInputStream in = new DataInputStream(new FileInputStream(file))) {
-			StringBuilder buf = new StringBuilder(in.available());
-			try {
-				in.readChar(); // skip UCS16 marker FEFF
-				for (;;) {
-					char ch = in.readChar();
-					buf.append(ch);
-				}
-			}
-			catch (EOFException eof) {
-			}
-			return buf.toString();
-		}
+		return new String(Files.readAllBytes(Path.of(file)), StandardCharsets.UTF_16);
 	}
 
 	private void fillTable(Map<String, String> tbl) {
@@ -207,12 +193,17 @@ public class Split { // NO_UCD (unused code)
 		}
 	}
 
-	private void onLoadUtf(String fileName) throws Exception {
+	private void onLoadUtf(String fileName) throws IOException {
 		if (fileName != null) {
 			bundle.getBundle().addLanguage("en");
 			UtfParser parser = new UtfParser(new StringReader(getBody(fileName)));
-			Map<String, String> tbl = parser.parse();
-			fillTable(tbl);
+			try {
+				Map<String, String> tbl = parser.parse();
+				fillTable(tbl);
+			}
+			catch (ParseException e) {
+				throw new IOException(e);
+			}
 		}
 	}
 

@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,9 +128,8 @@ public class XmlElement {
 	public String toString() {
 		try {
 			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-				this.write(new PrintStream(out));
-				out.flush();
-				return new String(out.toByteArray(), 0);
+				this.write(new PrintStream(out, false, StandardCharsets.UTF_8));
+				return out.toString(StandardCharsets.UTF_8);
 			}
 		}
 		catch (IOException e) {

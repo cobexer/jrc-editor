@@ -72,17 +72,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -139,7 +137,6 @@ class Translator extends JFrame implements TranslationTreeListener {
 	private JMenuItem saveAsBundleMenu;
 	private JMenuItem genMenu;
 	private JMenuItem closeMenu;
-	private JMenuItem exitMenu;
 	private JMenu langMenu;
 	private JMenu fileMenu;
 	private JCheckBoxMenuItem hideTransMenu;
@@ -290,7 +287,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 		keyName = new JTextField();
 		constrain(keyPanel, keyName, 1, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.BOTH, 1.0, 1.0, 5, 5, 5, 5);
-		keyName.addActionListener((e) -> onInsertKey());
+		keyName.addActionListener(e -> onInsertKey());
 
 		JButton keyInsertButton = createButton(this::onInsertKey, RC("tools.translator.label.insert"));
 		constrain(keyPanel, keyInsertButton, 2, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.NONE, 0.0, 0.0, 5, 5, 5, 5);
@@ -320,7 +317,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		closeMenu = createMenuItem(this::onCloseMenu, RC("tools.translator.menu.close"));
 		closeMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
 		closeMenu.setEnabled(false);
-		exitMenu = createMenuItem(this::onClose, RC("menu.exit"));
+		JMenuItem exitMenu = createMenuItem(this::onClose, RC("menu.exit"));
 		exitMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 
 		JMenu editMenu = new JMenu(RC("menu.edit"));
@@ -601,10 +598,8 @@ class Translator extends JFrame implements TranslationTreeListener {
 
 	private void onDelete() {
 		Component ccur = getFocusOwner();
-		if (ccur instanceof JTextComponent cur) {
-			if (cur.getSelectionStart() > 0) {
-				cur.replaceSelection("");
-			}
+		if (ccur instanceof JTextComponent cur && cur.getSelectionStart() > 0) {
+			cur.replaceSelection("");
 		}
 	}
 
@@ -770,13 +765,13 @@ class Translator extends JFrame implements TranslationTreeListener {
 			doDeleteAll = 0 == selection;
 			doDeleteThis = 1 == selection;
 		}
-		else if ((bi != null) && !hasChilds) {
+		else if (bi != null) {
 			String[] options = { RC("dialog.button.delete.this"), RC("dialog.button.cancel") };
 			int selection = JOptionPane.showOptionDialog(this, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
 				options, options[0]);
 			doDeleteThis = 0 == selection;
 		}
-		else if (bi == null) {
+		else {
 			String[] options = { RC("dialog.button.delete.all"), RC("dialog.button.cancel") };
 			int selection = JOptionPane.showOptionDialog(this, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null,
 				options, options[0]);
@@ -1057,7 +1052,7 @@ class Translator extends JFrame implements TranslationTreeListener {
 		replaceAll = ed.isReplaceAll();
 		replaceTo = ed.getReplaceTo();
 
-		if (!searchRegex && !searchMask && !searchCase) {
+		if (!searchRegex && !searchCase) {
 			searchCriteria = searchCriteria.toLowerCase();
 		}
 
@@ -1840,24 +1835,8 @@ class Translator extends JFrame implements TranslationTreeListener {
 		}
 	}
 
-	/**
-	 * Reading unicode (UCS16) file stream into memory
-	 */
 	private String getBody(String file) throws IOException {
-		StringBuilder buf = new StringBuilder();
-		try (DataInputStream in = new DataInputStream(new FileInputStream(file))) {
-			buf.ensureCapacity(in.available());
-
-			try {
-				in.readChar(); // skip UCS16 marker FEFF
-				for (;;) {
-					buf.append(in.readChar());
-				}
-			}
-			catch (EOFException eof) {
-			}
-		}
-		return buf.toString();
+		return new String(Files.readAllBytes(Path.of(file)), StandardCharsets.UTF_16);
 	}
 
 	private void fillTable(Map<String, String> tbl) {

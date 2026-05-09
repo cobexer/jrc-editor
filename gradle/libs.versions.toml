@@ -18,5 +18,5 @@ spotless = { id = "com.diffplug.spotless", version = "7.2.1" }
 javacc = { id = "ca.coglinc2.javacc", version = "3.0.0" }
 sonarqube = { id = "org.sonarqube", version = "6.0.1.5171" }
 versions = { id = "com.github.ben-manes.versions", version = "0.54.0" }
-beryx-jlink = { id = "org.beryx.jlink", version = "3.2.1" }
+beryx-jlink = { id = "org.beryx.jlink", version = "4.0.0" }
 dependency-analysis = { id ="com.autonomousapps.dependency-analysis", version = "2.19.0" }
